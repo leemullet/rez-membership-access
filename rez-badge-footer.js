@@ -32,11 +32,11 @@
                 background: #FFFAF2;
                 backdrop-filter: blur(10px);
                 color: #33302B;
-                padding: 8px 16px;
+                padding: 4px 8px;
                 border-radius: 20px;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 font-size: 12px;
                 font-weight: 500;
@@ -55,16 +55,16 @@
             }
             
             .footer-badge-logo {
-                width: 16px;
-                height: 16px;
-                border-radius: 3px;
+                width: 24px;
+                height: 20px;
+                border-radius: 0px;
                 flex-shrink: 0;
                 object-fit: contain;
             }
             
             .footer-badge-text {
                 white-space: nowrap;
-                color: #FFFAF2;
+                color: inherit;
             }
             
             /* Mobile responsive */
