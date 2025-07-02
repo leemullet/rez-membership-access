@@ -6,7 +6,7 @@
     const BADGE_CONFIG = {
         companyName: 'Rezurrected Coffee',
         logoUrl: 'https://cdn.prod.website-files.com/6758a13445f172eb64177bdd/686546f3a30bd6d9f0ea07cf_medium-png.png', // Update this path
-        websiteUrl: 'https://rezurrectedcoffee.com',
+        websiteUrl: 'https://www.rezurrectedcoffee.com/?utm_source=clientfooter&utm_medium=referral&utm_id=footer_badge',
         showText: true, // Set to false for logo-only badge
         fadeInDistance: 100, // Pixels from bottom to trigger fade-in
         customCSS: `
