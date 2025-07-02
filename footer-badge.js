@@ -17,7 +17,7 @@
                 transform: translateX(-50%);
                 z-index: 9999;
                 opacity: 0;
-                transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+                transition: opacity 0.2s ease-out, transform 0.2s ease-out;
                 pointer-events: none;
                 transform: translateX(-50%) translateY(20px);
             }
