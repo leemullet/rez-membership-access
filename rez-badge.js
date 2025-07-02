@@ -29,9 +29,9 @@
             }
             
             .footer-badge-content {
-                background: rgba(45, 55, 72, 0.95);
+                background: #FFFAF2;
                 backdrop-filter: blur(10px);
-                color: white;
+                color: #33302B;
                 padding: 8px 16px;
                 border-radius: 20px;
                 display: flex;
@@ -42,16 +42,16 @@
                 font-weight: 500;
                 text-decoration: none;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid #CBCBCB;
                 transition: all 0.3s ease;
             }
             
             .footer-badge-content:hover {
-                background: rgba(45, 55, 72, 1);
+                background: #FFD278;
                 transform: translateY(-2px);
                 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
                 text-decoration: none;
-                color: white;
+                color: #33302B;
             }
             
             .footer-badge-logo {
@@ -59,11 +59,12 @@
                 height: 16px;
                 border-radius: 3px;
                 flex-shrink: 0;
+                object-fit: contain;
             }
             
             .footer-badge-text {
                 white-space: nowrap;
-                color: rgba(255, 255, 255, 0.9);
+                color: #FFFAF2;
             }
             
             /* Mobile responsive */
