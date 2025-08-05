@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "ALTCHA backend for Webflow",
   "main": "index.js",
+  "type": "module",  // ← Add this line
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "altcha-lib": "^0.5.0"
+    "altcha-lib": "^0.5.0"  // ← This is perfect - newer than the guide!
   },
   "keywords": ["altcha", "captcha"],
   "author": "",
