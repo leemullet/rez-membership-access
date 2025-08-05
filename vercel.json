@@ -1,12 +1,4 @@
 {
-  "functions": {
-    "api/challenge.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/verify.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
