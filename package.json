@@ -1,15 +1,16 @@
 {
-  "name": "altcha-backend",
+  "name": "altcha-server",
   "version": "1.0.0",
-  "description": "ALTCHA backend for Webflow",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
-    "altcha-lib": "^0.5.0"
+    "altcha-lib": "^0.4.0"
   },
-  "keywords": ["altcha", "captcha"],
-  "author": "",
-  "license": "MIT"
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
 }
