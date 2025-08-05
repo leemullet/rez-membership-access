@@ -1,6 +1,4 @@
 const { createChallenge } = require('altcha-lib');
-console.log('ALTCHA_HMAC_KEY:', process.env.ALTCHA_HMAC_KEY ? 'Present' : 'Missing');
-
 
 module.exports = async function handler(req, res) {
   // Set CORS headers FIRST - before any other logic
