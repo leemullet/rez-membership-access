@@ -1,36 +1,28 @@
-const { createChallenge } = require('altcha-lib');
+import { createChallenge } from 'altcha-lib';
 
-module.exports = async function handler(req, res) {
-  // Set comprehensive CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
-  
-  // Handle preflight OPTIONS request
+export default async function handler(req, res) {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
-
-  // Also handle HEAD requests
-  if (req.method === 'HEAD') {
     res.status(200).end();
     return;
   }
 
-  // Check if environment variable exists
-  if (!process.env.ALTCHA_HMAC_KEY) {
-    console.error('ALTCHA_HMAC_KEY environment variable not set');
-    return res.status(500).json({ error: 'Server configuration error' });
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Generate challenge
+    // Your secret HMAC key (store this in Vercel environment variables)
+    const hmacKey = process.env.ALTCHA_HMAC_KEY || 'your-secret-key-change-this';
+    
+    // Create challenge with expiration (10 minutes)
+    const expires = Math.floor(Date.now() / 1000) + 600; // 10 minutes from now
+    
     const challenge = await createChallenge({
-      hmacKey: process.env.ALTCHA_HMAC_KEY,
+      hmacKey,
+      maxnumber: 100000, // Adjust complexity as needed
       saltLength: 12,
-      maxNumber: 100000, // Changed from 'number' to 'maxNumber'
+      expires, // Challenge expires in 10 minutes
     });
 
     res.status(200).json(challenge);
@@ -38,4 +30,4 @@ module.exports = async function handler(req, res) {
     console.error('Challenge creation error:', error);
     res.status(500).json({ error: 'Failed to create challenge' });
   }
-};
+}
