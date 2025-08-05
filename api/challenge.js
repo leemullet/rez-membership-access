@@ -1,11 +1,12 @@
 const { createChallenge } = require('altcha-lib');
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers - replace with your actual Webflow domain
+  // Set CORS headers - allow all origins for client flexibility
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -24,4 +25,4 @@ module.exports = async function handler(req, res) {
     console.error('Challenge creation error:', error);
     res.status(500).json({ error: 'Failed to create challenge' });
   }
-}
+};
