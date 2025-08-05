@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     const challenge = await createChallenge({
       hmacKey: process.env.ALTCHA_HMAC_KEY,
       saltLength: 12,
-      number: Math.floor(Math.random() * 100000),
+      maxNumber: 100000, // Changed from 'number' to 'maxNumber'
     });
 
     res.status(200).json(challenge);
