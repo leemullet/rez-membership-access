@@ -1,7 +1,7 @@
 const { createChallenge } = require('altcha-lib');
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers - allow all origins for client flexibility
+  // Set CORS headers FIRST - before any other logic
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -10,6 +10,12 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
+  }
+
+  // Check if environment variable exists
+  if (!process.env.ALTCHA_HMAC_KEY) {
+    console.error('ALTCHA_HMAC_KEY environment variable not set');
+    return res.status(500).json({ error: 'Server configuration error' });
   }
 
   try {
