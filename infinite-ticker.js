@@ -59,6 +59,7 @@ class InfiniteTicker {
       this.isMobile = this.checkMobile();
       this.lastWindowWidth = window.innerWidth;
       this.resizeThreshold = 100; // Only resize if width changes by more than this
+      this.globalMqlReducedMotion = null;
   
       this.init();
     }
@@ -105,11 +106,16 @@ class InfiniteTicker {
         container: null,
         items: [],
         isPaused: false,
+        autoPaused: false,
         currentOffset: 0,
         progress: 0, // Track progress as percentage
         containerWidth: 0,
         itemsWidth: 0,
         config: this.getElementConfig(element),
+        _resizeObserver: null,
+        _mutationObserver: null,
+        _intersectionObserver: null,
+        _resizeDebounceId: null,
       };
   
       this.createTickerStructure(ticker);
@@ -117,6 +123,7 @@ class InfiniteTicker {
       this.cloneItemsForInfiniteScroll(ticker);
       this.setupAccessibility(ticker);
       this.setupInteractionListeners(ticker);
+      this.observeTicker(ticker);
   
       this.tickers.push(ticker);
     }
@@ -208,7 +215,9 @@ class InfiniteTicker {
       // Force layout calculation
       ticker.element.offsetHeight;
   
-      ticker.containerWidth = ticker.element.offsetWidth;
+      // Use precise bounding box to reduce subpixel drift on some browsers
+      const rect = ticker.element.getBoundingClientRect();
+      ticker.containerWidth = Math.max(0, Math.round(rect.width));
   
       // Calculate the width of one complete set of items
       let totalItemWidth = 0;
@@ -216,7 +225,8 @@ class InfiniteTicker {
   
       for (let i = 0; i < ticker.originalItems.length; i++) {
         if (items[i]) {
-          totalItemWidth += items[i].offsetWidth;
+          const itemRect = items[i].getBoundingClientRect();
+          totalItemWidth += Math.round(itemRect.width);
           if (i < ticker.originalItems.length - 1) {
             totalItemWidth += ticker.config.gap;
           }
@@ -241,8 +251,15 @@ class InfiniteTicker {
       const existingClones = container.querySelectorAll(".ticker-clone");
       existingClones.forEach((clone) => clone.remove());
   
+      // If we cannot determine a valid width yet, bail out safely
+      if (!singleSetWidth || singleSetWidth <= 0 || !isFinite(singleSetWidth)) {
+        this.warn("Skipping cloning: invalid singleSetWidth", singleSetWidth);
+        ticker.totalWidth = container.scrollWidth;
+        return;
+      }
+
       // Calculate how many complete sets we need to fill the screen + buffer
-      const setsNeeded = Math.ceil((containerWidth * 2) / singleSetWidth) + 2;
+      const setsNeeded = Math.max(2, Math.ceil((Math.max(containerWidth, singleSetWidth) * 2) / singleSetWidth) + 2);
       this.log("Sets needed for infinite scroll:", setsNeeded);
   
       // Clone original items multiple times
@@ -293,6 +310,57 @@ class InfiniteTicker {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         ticker.config.speed = 0;
       }
+    }
+
+    observeTicker(ticker) {
+      // ResizeObserver for width changes of the ticker element
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => {
+          if (ticker._resizeDebounceId) {
+            cancelAnimationFrame(ticker._resizeDebounceId);
+          }
+          ticker._resizeDebounceId = requestAnimationFrame(() => {
+            this.calculateDimensions(ticker);
+            this.cloneItemsForInfiniteScroll(ticker, true);
+          });
+        });
+        ro.observe(ticker.element);
+        ticker._resizeObserver = ro;
+      }
+
+      // MutationObserver for DOM/content changes within ticker
+      if (typeof MutationObserver !== "undefined") {
+        const mo = new MutationObserver(() => {
+          // Re-measure and re-clone when content changes
+          this.calculateDimensions(ticker);
+          this.cloneItemsForInfiniteScroll(ticker, true);
+        });
+        mo.observe(ticker.element, { childList: true, subtree: true, characterData: true });
+        ticker._mutationObserver = mo;
+      }
+
+      // IntersectionObserver to auto-pause when offscreen
+      if (typeof IntersectionObserver !== "undefined") {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            const offscreen = !entry.isIntersecting || entry.intersectionRatio === 0;
+            ticker.autoPaused = offscreen;
+          });
+        }, { root: null, threshold: 0 });
+        io.observe(ticker.element);
+        ticker._intersectionObserver = io;
+      }
+
+      // Recalculate after images load within the ticker
+      const images = ticker.element.querySelectorAll("img");
+      images.forEach((img) => {
+        if (!img.complete) {
+          img.addEventListener("load", () => {
+            this.calculateDimensions(ticker);
+            this.cloneItemsForInfiniteScroll(ticker, true);
+          }, { once: true });
+        }
+      });
     }
   
     setupInteractionListeners(ticker) {
@@ -431,6 +499,24 @@ class InfiniteTicker {
           }, 300);
         });
       }
+
+      // Global assets and fonts readiness triggers
+      window.addEventListener("load", () => this.handleResize());
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => this.handleResize()).catch(() => {});
+      }
+
+      // Prefers-reduced-motion change handling
+      try {
+        this.globalMqlReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        if (this.globalMqlReducedMotion && this.globalMqlReducedMotion.addEventListener) {
+          this.globalMqlReducedMotion.addEventListener("change", (e) => {
+            this.tickers.forEach((ticker) => {
+              ticker.config.speed = e.matches ? 0 : (ticker.config.speed || this.options.speed);
+            });
+          });
+        }
+      } catch (_) {}
     }
   
     handleResize() {
@@ -468,26 +554,24 @@ class InfiniteTicker {
     }
   
     updateTicker(ticker, deltaTime) {
-      if (ticker.isPaused || ticker.config.speed === 0 || !ticker.singleSetWidth)
+      if (ticker.isPaused || ticker.autoPaused || ticker.config.speed === 0 || !ticker.singleSetWidth)
         return;
   
       const { container, config, singleSetWidth } = ticker;
       const movement = (config.speed * deltaTime) / 1000;
-  
+
+      // Normalize offset using modulo to avoid cumulative drift
       if (config.direction === "left") {
-        ticker.currentOffset -= movement;
-        if (ticker.currentOffset <= -singleSetWidth) {
-          ticker.currentOffset += singleSetWidth;
-        }
+        ticker.currentOffset = (ticker.currentOffset - movement) % singleSetWidth;
+        if (ticker.currentOffset > 0) ticker.currentOffset -= singleSetWidth;
       } else {
-        ticker.currentOffset += movement;
-        if (ticker.currentOffset >= 0) {
-          ticker.currentOffset = -singleSetWidth;
-        }
+        ticker.currentOffset = (ticker.currentOffset + movement) % singleSetWidth;
+        if (ticker.currentOffset > 0) ticker.currentOffset = -singleSetWidth + ticker.currentOffset;
       }
-  
-      // Use transform3d for better mobile performance
-      container.style.transform = `translate3d(${ticker.currentOffset}px, 0, 0)`;
+
+      // Reduce potential subpixel blur by limiting precision
+      const offsetRounded = Math.round(ticker.currentOffset * 100) / 100;
+      container.style.transform = `translate3d(${offsetRounded}px, 0, 0)`;
     }
   
     // Public methods
@@ -550,6 +634,17 @@ class InfiniteTicker {
         }
         if (ticker.focusOutHandler) {
           ticker.element.removeEventListener("focusout", ticker.focusOutHandler);
+        }
+
+        // Disconnect observers
+        if (ticker._resizeObserver) {
+          try { ticker._resizeObserver.disconnect(); } catch (_) {}
+        }
+        if (ticker._mutationObserver) {
+          try { ticker._mutationObserver.disconnect(); } catch (_) {}
+        }
+        if (ticker._intersectionObserver) {
+          try { ticker._intersectionObserver.disconnect(); } catch (_) {}
         }
   
         if (ticker.element) {
