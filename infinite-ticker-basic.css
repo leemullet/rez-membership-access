@@ -16,7 +16,7 @@
 
 /* Defaults */
 .ticker {
-  --ticker-gap: 20px;
+  --ticker-gap: 16px;
   --ticker-duration: 20s;
 }
 
@@ -25,18 +25,22 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+  touch-action: pan-y; /* avoid horizontal touch conflicts */
   -webkit-mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
   mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
 }
 
 /* Track (moving element) */
 .ticker .ticker-container {
-  display: flex;
+  display: inline-flex; /* inline to allow percent-based translation on own width */
+  width: max-content;   /* fit to content width (2 sets) */
   align-items: center;
   gap: var(--ticker-gap);
   will-change: transform;
   backface-visibility: hidden;
-  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
   animation: ticker-scroll var(--ticker-duration) linear infinite;
 }
 
@@ -72,10 +76,10 @@
   }
 }
 
-/* Keyframes: translate full track width (assumes repeated content) */
+/* Keyframes: translate by half the track width (because content is duplicated) */
 @keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(-100% - var(--ticker-gap))); }
+  from { transform: translate3d(0,0,0); }
+  to   { transform: translate3d(-50%, 0, 0); }
 }
 
 
