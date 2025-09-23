@@ -1,0 +1,81 @@
+/*
+ * Basic CSS-only infinite ticker for existing classes:
+ * - Container: .ticker (viewport)
+ * - Track: .ticker-container (moving flex row)
+ * - Items: .ticker-item (no wrap, fixed gap)
+ *
+ * Notes:
+ * - Works best when the DOM contains duplicated items (at least 2 sets).
+ *   Your existing JS ticker builds .ticker-container and clones items, so this
+ *   CSS can be used as a lightweight fallback or alternative.
+ * - Control speed via --ticker-duration (lower = faster). Example:
+ *     <div class="ticker" style="--ticker-duration: 20s; --ticker-gap: 20px">
+ * - Direction can be toggled with the attribute ticker-direction="right".
+ * - Hover pause included; remove the :hover rule if problematic.
+ */
+
+/* Defaults */
+.ticker {
+  --ticker-gap: 20px;
+  --ticker-duration: 20s;
+}
+
+/* Viewport */
+.ticker {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
+}
+
+/* Track (moving element) */
+.ticker .ticker-container {
+  display: flex;
+  align-items: center;
+  gap: var(--ticker-gap);
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  animation: ticker-scroll var(--ticker-duration) linear infinite;
+}
+
+/* Items */
+.ticker .ticker-item {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Optional: treat images gently on mobile GPUs */
+.ticker .ticker-item img,
+.marquee-image {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Direction control using existing attribute */
+[ticker-direction="right"] .ticker-container {
+  animation-direction: reverse;
+}
+
+/* Pause on hover/focus (optional) */
+.ticker:hover .ticker-container,
+.ticker:focus-within .ticker-container {
+  animation-play-state: paused;
+}
+
+/* Reduced motion: disable animation */
+@media (prefers-reduced-motion: reduce) {
+  .ticker .ticker-container {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Keyframes: translate full track width (assumes repeated content) */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--ticker-gap))); }
+}
+
+
