@@ -82,4 +82,34 @@
   to   { transform: translate3d(-50%, 0, 0); }
 }
 
+/* === WEBFLOW CMS OVERRIDES === */
+/* Handle the main container */
+.ticker-css .logos_list_wrap.ticker-container {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  width: max-content !important;
+  animation: ticker-scroll var(--ticker-duration) linear infinite;
+}
+
+/* Flatten Webflow's nested structure */
+.ticker-css .logos_list.ticker-list-css,
+.ticker-css .w-dyn-list,
+.ticker-css .w-dyn-items {
+  display: contents !important; /* This removes the wrapper from layout */
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+/* Target all possible Webflow item classes */
+.ticker-css .logos_item_wrap.ticker-item-css,
+.ticker-css .w-dyn-item.ticker-item-css,
+.ticker-css .logos_item_wrap.w-dyn-item,
+.ticker-css .w-dyn-item {
+  flex: none !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  display: block !important;
+  width: auto !important; /* Override any fixed widths */
+}
 
