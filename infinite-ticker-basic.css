@@ -1,27 +1,27 @@
 /*
- * Basic CSS-only infinite ticker for existing classes:
- * - Container: .ticker (viewport)
+ * Basic CSS-only infinite ticker-css for existing classes:
+ * - Container: .ticker-css (viewport)
  * - Track: .ticker-container (moving flex row)
- * - Items: .ticker-item (no wrap, fixed gap)
+ * - Items: .ticker-item-css (no wrap, fixed gap)
  *
  * Notes:
  * - Works best when the DOM contains duplicated items (at least 2 sets).
- *   Your existing JS ticker builds .ticker-container and clones items, so this
+ *   Your existing JS ticker-css builds .ticker-container and clones items, so this
  *   CSS can be used as a lightweight fallback or alternative.
  * - Control speed via --ticker-duration (lower = faster). Example:
- *     <div class="ticker" style="--ticker-duration: 20s; --ticker-gap: 20px">
+ *     <div class="ticker-css" style="--ticker-duration: 20s; --ticker-gap: 20px">
  * - Direction can be toggled with the attribute ticker-direction="right".
  * - Hover pause included; remove the :hover rule if problematic.
  */
 
 /* Defaults */
-.ticker {
+.ticker-css {
   --ticker-gap: 16px;
   --ticker-duration: 20s;
 }
 
 /* Viewport */
-.ticker {
+.ticker-css {
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -31,7 +31,7 @@
 }
 
 /* Track (moving element) */
-.ticker .ticker-container {
+.ticker-css .ticker-container {
   display: inline-flex; /* inline to allow percent-based translation on own width */
   width: max-content;   /* fit to content width (2 sets) */
   align-items: center;
@@ -45,13 +45,13 @@
 }
 
 /* Items */
-.ticker .ticker-item {
+.ticker-css .ticker-item-css {
   flex-shrink: 0;
   white-space: nowrap;
 }
 
 /* Optional: treat images gently on mobile GPUs */
-.ticker .ticker-item img,
+.ticker-css .ticker-item-css img,
 .marquee-image {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -63,14 +63,14 @@
 }
 
 /* Pause on hover/focus (optional) */
-.ticker:hover .ticker-container,
-.ticker:focus-within .ticker-container {
+.ticker-css:hover .ticker-container,
+.ticker-css:focus-within .ticker-container {
   animation-play-state: paused;
 }
 
 /* Reduced motion: disable animation */
 @media (prefers-reduced-motion: reduce) {
-  .ticker .ticker-container {
+  .ticker-css .ticker-container {
     animation: none !important;
     transform: none !important;
   }
