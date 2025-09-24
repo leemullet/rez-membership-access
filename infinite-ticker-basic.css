@@ -22,32 +22,32 @@
 
 /* Viewport */
 .ticker-css {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  touch-action: pan-y; /* avoid horizontal touch conflicts */
+  position: relative !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  touch-action: pan-y !important; /* avoid horizontal touch conflicts */
   -webkit-mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
   mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent);
 }
 
 /* Track (moving element) */
 .ticker-css .ticker-container {
-  display: inline-flex; /* inline to allow percent-based translation on own width */
-  width: max-content;   /* fit to content width (2 sets) */
-  align-items: center;
-  gap: var(--ticker-gap);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translate3d(0,0,0);
-  -webkit-transform: translate3d(0,0,0);
-  animation: ticker-scroll var(--ticker-duration) linear infinite;
+  display: inline-flex !important; /* inline to allow percent-based translation on own width */
+  width: max-content !important;   /* fit to content width (2 sets) */
+  align-items: center !important;
+  gap: var(--ticker-gap) !important;
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform: translate3d(0,0,0) !important;
+  -webkit-transform: translate3d(0,0,0) !important;
+  animation: ticker-scroll var(--ticker-duration) linear infinite !important;
 }
 
 /* Items */
 .ticker-css .ticker-item-css {
-  flex-shrink: 0;
-  white-space: nowrap;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 /* Optional: treat images gently on mobile GPUs */
@@ -78,8 +78,8 @@
 
 /* Keyframes: translate by half the track width (because content is duplicated) */
 @keyframes ticker-scroll {
-  from { transform: translate3d(0,0,0); }
-  to   { transform: translate3d(-50%, 0, 0); }
+  from { transform: translate3d(0,0,0) !important; }
+  to   { transform: translate3d(-50%, 0, 0) !important; }
 }
 
 
